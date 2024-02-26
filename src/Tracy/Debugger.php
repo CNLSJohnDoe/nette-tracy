@@ -320,7 +320,7 @@ class Debugger
 	 * @throws ErrorException
 	 * @internal
 	 */
-	public static function errorHandler($severity, $message, $file, $line, $context)
+	public static function errorHandler($severity, $message, $file, $line, $context = null)
 	{
 		if (self::$scream) {
 			error_reporting(E_ALL | E_STRICT);
@@ -329,12 +329,12 @@ class Debugger
 		if ($severity === E_RECOVERABLE_ERROR || $severity === E_USER_ERROR) {
 			if (Helpers::findTrace(debug_backtrace(PHP_VERSION_ID >= 50306 ? DEBUG_BACKTRACE_IGNORE_ARGS : FALSE), '*::__toString')) {
 				$previous = isset($context['e']) && ($context['e'] instanceof \Exception || $context['e'] instanceof \Throwable) ? $context['e'] : NULL;
-				$e = new ErrorException($message, 0, $severity, $file, $line, $previous);
+				$e = new TracyErrorException($message, 0, $severity, $file, $line, $previous);
 				$e->context = $context;
 				self::exceptionHandler($e);
 			}
 
-			$e = new ErrorException($message, 0, $severity, $file, $line);
+			$e = new TracyErrorException($message, 0, $severity, $file, $line);
 			$e->context = $context;
 			throw $e;
 
@@ -342,7 +342,7 @@ class Debugger
 			return FALSE; // calls normal error handler to fill-in error_get_last()
 
 		} elseif (self::$productionMode && ($severity & self::$logSeverity) === $severity) {
-			$e = new ErrorException($message, 0, $severity, $file, $line);
+			$e = new TracyErrorException($message, 0, $severity, $file, $line);
 			$e->context = $context;
 			try {
 				self::log($e, self::ERROR);
@@ -354,7 +354,7 @@ class Debugger
 		} elseif (!self::$productionMode && !isset($_GET['_tracy_skip_error'])
 			&& (is_bool(self::$strictMode) ? self::$strictMode : ((self::$strictMode & $severity) === $severity))
 		) {
-			$e = new ErrorException($message, 0, $severity, $file, $line);
+			$e = new TracyErrorException($message, 0, $severity, $file, $line);
 			$e->context = $context;
 			$e->skippable = TRUE;
 			self::exceptionHandler($e);
