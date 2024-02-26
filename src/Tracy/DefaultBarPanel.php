@@ -18,6 +18,7 @@ class DefaultBarPanel implements IBarPanel
 
 	public $data;
 
+    public $cpuUsage;
 
 	public function __construct($id)
 	{
