@@ -108,9 +108,10 @@ class BlueScreen
 		$source = explode("\n", highlight_string($source, TRUE));
 
         if (PHP_VERSION_ID >= 80300) {
-            [$out,$source[0]] = preg_split('/#06b">/', $source[0]);
+            list($out, $spanTag) = preg_split('/#06b">/', $source[0]);
             $out .= '#06b">';
             array_pop($source);
+            $source[0] = $spanTag;
             $source[1] = implode("\n", $source);
         } else {
             $out = $source[0]; // <code><span color=highlight.html>
