@@ -44,7 +44,7 @@ class OutputDebugger
 		if (isset($trace[0]['file'], $trace[0]['line'])) {
 			$stack = $trace;
 			unset($stack[0]['line'], $stack[0]['args']);
-			$i = count($this->list);
+			$i = is_array($this->list) ? count($this->list) : 0;
 			if ($i && $this->list[$i - 1][3] === $stack) {
 				$this->list[$i - 1][2] .= $s;
 			} else {

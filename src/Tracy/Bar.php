@@ -61,7 +61,7 @@ class Bar
 		$redirect = preg_match('#^Location:#im', implode("\n", headers_list()));
 		if ($redirect) {
 			Dumper::fetchLiveData();
-			Dumper::$livePrefix = count($session) . 'p';
+			Dumper::$livePrefix = count(empty($session) ? [] : $session) . 'p';
 		}
 
 		$obLevel = ob_get_level();
