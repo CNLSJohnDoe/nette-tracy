@@ -173,15 +173,23 @@ class Debugger
 		) {
 			self::exceptionHandler(new \RuntimeException("Unable to set 'display_errors' because function ini_set() is disabled."));
 		}
-		error_reporting(E_ALL | E_STRICT);
+
+        if (PHP_VERSION_ID > 80400) {
+            error_reporting(E_ALL);
+        } else {
+            error_reporting(E_ALL | E_STRICT);
+        }
 
 		if (!self::$enabled) {
 			register_shutdown_function(array(__CLASS__, 'shutdownHandler'));
 			set_exception_handler(array(__CLASS__, 'exceptionHandler'));
 			set_error_handler(array(__CLASS__, 'errorHandler'));
 
-			array_map('class_exists', array('Tracy\Bar', 'Tracy\BlueScreen', 'Tracy\DefaultBarPanel', 'Tracy\Dumper',
-				'Tracy\FireLogger', 'Tracy\Helpers', 'Tracy\Logger'));
+            $initialErrorLevel = error_reporting();
+            error_reporting($initialErrorLevel & ~E_DEPRECATED);
+            array_map('class_exists', array('Tracy\Bar', 'Tracy\BlueScreen', 'Tracy\DefaultBarPanel', 'Tracy\Dumper',
+                'Tracy\FireLogger', 'Tracy\Helpers', 'Tracy\Logger'));
+            error_reporting($initialErrorLevel);
 
 			self::$enabled = TRUE;
 		}
